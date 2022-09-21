@@ -159,61 +159,61 @@ for magical_index in magical_indices_cube:
 # Set all parameters to tex
 plt.rcParams['text.usetex'] = True
 # Define a figure window with two subfigures
-fig_5, axs_5 = plt.subplots(1, 2, constrained_layout=True, figsize=(20, 8))
+fig_1, axs_1 = plt.subplots(1, 2, constrained_layout=True, figsize=(20, 8))
 # The linear model
 # The original solution
-axs_5[0].plot(t, y_lin_ori, '-', label="$y(t)$" ,color=(0/256,68/256,27/256),linewidth=3.0)
+axs_1[0].plot(t, y_lin_ori, '-', label="$y(t)$" ,color=(0/256,68/256,27/256),linewidth=3.0)
 # The transformed curve
-axs_5[0].plot(t, y_lin_hat, '-', label="$\\hat{y}(t,\\epsilon=\\pi/6)$" ,color=(0/256,109/256,44/256),linewidth=3.0)
+axs_1[0].plot(t, y_lin_hat, '-', label="$\\hat{y}(t,\\epsilon=\\pi/6)$" ,color=(0/256,109/256,44/256),linewidth=3.0)
 # The second transformed curve
-axs_5[0].plot(t, y_lin_hat_2, '-', label="$\\hat{y}(t,2\\epsilon=\\pi/3)$" ,color=(35/256,139/256,69/256),linewidth=3.0)
+axs_1[0].plot(t, y_lin_hat_2, '-', label="$\\hat{y}(t,2\\epsilon=\\pi/3)$" ,color=(35/256,139/256,69/256),linewidth=3.0)
 # The rotation symmetry
 for index in range(len(rot)):
     if index ==0:
-        axs_5[0].plot(rot[index][0], rot[index][1], '--', label="$\\left.\\Gamma_{\\epsilon}^{R}\\right|_{\\epsilon=\\pi/6}$" ,color=(0/256,0/256,0/256),linewidth=3.0)
+        axs_1[0].plot(rot[index][0], rot[index][1], '--', label="$\\left.\\Gamma_{\\epsilon}^{R}\\right|_{\\epsilon=\\pi/6}$" ,color=(0/256,0/256,0/256),linewidth=3.0)
     else:
-        axs_5[0].plot(rot[index][0], rot[index][1], '--',color=(0/256,0/256,0/256),linewidth=3.0)
-axs_5[0].grid()
+        axs_1[0].plot(rot[index][0], rot[index][1], '--',color=(0/256,0/256,0/256),linewidth=3.0)
+axs_1[0].grid()
 # Set the limits
-axs_5[0].set_xlim([-1, 1])
-axs_5[0].set_ylim([-1, 1])
+axs_1[0].set_xlim([-1, 1])
+axs_1[0].set_ylim([-1, 1])
 # Legends and axes labels
-axs_5[0].legend(loc='best',prop={"size":20})
-axs_5[0].set_ylabel('Explanatory variable, $y(t)$',fontsize=25)
-axs_5[0].set_xlabel('Response variable, $t$',fontsize=25)
+axs_1[0].legend(loc='best',prop={"size":20})
+axs_1[0].set_ylabel('Explanatory variable, $y(t)$',fontsize=25)
+axs_1[0].set_xlabel('Response variable, $t$',fontsize=25)
 # Change the size of the ticks
-axs_5[0].tick_params(axis='both', which='major', labelsize=20)
-axs_5[0].tick_params(axis='both', which='minor', labelsize=20)
+axs_1[0].tick_params(axis='both', which='major', labelsize=20)
+axs_1[0].tick_params(axis='both', which='minor', labelsize=20)
 # Title and saving the figure
-axs_5[0].set_title("The linear model, $y(t)="+ str(C) + "\\;t$",fontsize=30,weight='bold');
+axs_1[0].set_title("The linear model, $y(t)="+ str(C) + "\\;t$",fontsize=30,weight='bold');
 # The cubic model
 # The original cubic curve
-axs_5[1].plot(t_cube, y_cube_ori, '-', label="$y(t)$" ,color=(103/256,0/256,31/256),linewidth=3.0)
+axs_1[1].plot(t_cube, y_cube_ori, '-', label="$y(t)$" ,color=(103/256,0/256,31/256),linewidth=3.0)
 # The transformed cubic curve
-axs_5[1].plot(t_cube, y_cube_hat, '-', label="$\\hat{y}(t,\\epsilon=" + str(eps_cube)+ ")$" ,color=(152/256,0/256,67/256),linewidth=3.0)
+axs_1[1].plot(t_cube, y_cube_hat, '-', label="$\\hat{y}(t,\\epsilon=" + str(eps_cube)+ ")$" ,color=(152/256,0/256,67/256),linewidth=3.0)
 # The second transformation
-axs_5[1].plot(t_cube, y_cube_hat_2, '-', label="$\\hat{y}(t,2\\epsilon=" + str(2*eps_cube)+ ")$" ,color=(206/256,18/256,86/256),linewidth=3.0)
+axs_1[1].plot(t_cube, y_cube_hat_2, '-', label="$\\hat{y}(t,2\\epsilon=" + str(2*eps_cube)+ ")$" ,color=(206/256,18/256,86/256),linewidth=3.0)
 # The scaling symmetry
 for index in range(len(scaling)):
     if index ==0:
-        axs_5[1].plot(scaling[index][0], scaling[index][1], '--', label="$\\left.\\Gamma_{\\epsilon}^{S}\\right|_{\\epsilon=" + str(eps_cube)+ "}$" ,color=(0/256,0/256,0/256),linewidth=3.0)
+        axs_1[1].plot(scaling[index][0], scaling[index][1], '--', label="$\\left.\\Gamma_{\\epsilon}^{S}\\right|_{\\epsilon=" + str(eps_cube)+ "}$" ,color=(0/256,0/256,0/256),linewidth=3.0)
     else:
-        axs_5[1].plot(scaling[index][0], scaling[index][1], '--',color=(0/256,0/256,0/256),linewidth=3.0)
-axs_5[1].grid()
+        axs_1[1].plot(scaling[index][0], scaling[index][1], '--',color=(0/256,0/256,0/256),linewidth=3.0)
+axs_1[1].grid()
 # Set the limits
-axs_5[1].set_xlim([-2, 2])
-axs_5[1].set_ylim([-2, 2])
+axs_1[1].set_xlim([-2, 2])
+axs_1[1].set_ylim([-2, 2])
 # Legends and axes labels
-axs_5[1].legend(loc='best',prop={"size":20})
-axs_5[1].set_ylabel('Explanatory variable, $y(t)$',fontsize=25)
-axs_5[1].set_xlabel('Response variable, $t$',fontsize=25)
+axs_1[1].legend(loc='best',prop={"size":20})
+axs_1[1].set_ylabel('Explanatory variable, $y(t)$',fontsize=25)
+axs_1[1].set_xlabel('Response variable, $t$',fontsize=25)
 # Change the size of the ticks
-axs_5[1].tick_params(axis='both', which='major', labelsize=20)
-axs_5[1].tick_params(axis='both', which='minor', labelsize=20)
+axs_1[1].tick_params(axis='both', which='major', labelsize=20)
+axs_1[1].tick_params(axis='both', which='minor', labelsize=20)
 # Title and saving the figure
-axs_5[1].set_title("The cubic model, $y(t)="+ str(C) + "\\;t^3$",fontsize=30,weight='bold');
+axs_1[1].set_title("The cubic model, $y(t)="+ str(C) + "\\;t^3$",fontsize=30,weight='bold');
 # Save the figure
-fig_5.savefig('../Figures/symmetries_line_and_cube.png')
+fig_1.savefig('../Figures/symmetries_line_and_cube.png')
 # Show the figure
 plt.show()
 
