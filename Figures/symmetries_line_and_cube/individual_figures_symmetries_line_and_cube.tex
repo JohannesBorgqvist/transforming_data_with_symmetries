@@ -1,0 +1,96 @@
+\documentclass[tikz,crop,convert={density=200,outext=.png},border=0.4cm]{standalone}
+
+\usetikzlibrary{backgrounds}
+\usepackage{pgfplots}
+\usepackage{amsmath}
+\usetikzlibrary{arrows.meta}
+\usepackage{physics}
+\usepackage{xcolor}
+\usepgfplotslibrary{fillbetween}
+% Define the colours of the linear model
+\definecolor{lin_1}{RGB}{0,68,27}
+\definecolor{lin_2}{RGB}{0,109,44}
+\definecolor{lin_3}{RGB}{35,139,69}
+% Define the colours of the cubic model
+\definecolor{cube_1}{RGB}{103,0,31}
+\definecolor{cube_2}{RGB}{152,0,67}
+\definecolor{cube_3}{RGB}{206,18,86}
+
+
+\pgfplotsset{compat=newest,
+    %width=6cm,
+    %height=3cm,
+    scale only axis=true,
+    max space between ticks=25pt,
+    try min ticks=5,
+    every axis/.style={
+        axis y line=middle,
+        axis x line=middle,
+        % axis line style={thick,<->,>=latex, shorten >=-.3cm}
+        axis line style={thick,<->,>=latex, shorten >=-.3cm, shorten <=-.3cm}
+    },
+    every axis plot/.append style={thick},
+    tick style={black, thick},
+}
+\tikzset{
+    semithick/.style={line width=0.8pt},
+}
+\usepgfplotslibrary{groupplots}
+\usepgfplotslibrary{dateplot}
+%\pgfplotsset{compat=1.16}
+% Document begins
+\begin{document}
+%=========================================================================================================
+% FIGURE LINE
+\begin{tikzpicture}
+  % The axis of the plot
+  \begin{axis}[
+    x label style={at={(axis description cs:0.5,-0.15)},anchor=north},
+    y label style={at={(axis description cs:-0.15,0.55)},rotate=90,anchor=south,align={center}},    
+    legend style={at={(axis description cs:0.01,0.75)},anchor=west,nodes={scale=1.5, transform shape}},
+    ymin = -1,
+    ymax = 1,
+    xmin=-1,
+    xmax = 1,
+    ytick = {-1,-0.5,...,1},
+    xtick = {-1,-0.5,...,1},
+    axis x line*=middle,
+    extra x ticks={0,-1,1},
+    extra y ticks = {0,-1,1},
+    grid style=dashed,
+    label style={font=\huge},
+    tick label style={font=\huge},
+    legend cell align={left},    
+]
+\input{./Input/line}
+\end{axis}
+\end{tikzpicture}
+%=========================================================================================================
+%=========================================================================================================
+% FIGURE CUBE
+\begin{tikzpicture}
+  % The axis of the plot
+  \begin{axis}[
+    x label style={at={(axis description cs:0.5,-0.15)},anchor=north},
+    y label style={at={(axis description cs:-0.15,0.55)},rotate=90,anchor=south,align={center}},    
+    legend style={at={(axis description cs:0.01,0.75)},anchor=west,nodes={scale=1.5, transform shape}},
+    ymin = -2,
+    ymax = 2,
+    xmin=-2,
+    xmax = 2,
+    axis x line*=middle,
+    ytick = {-2,-1,...,2},
+    xtick = {-2,-1,...,2},
+    extra x ticks={0,-2,2},
+    extra y ticks = {0,-2,2},
+    grid style=dashed,
+    label style={font=\huge},
+    tick label style={font=\huge},
+    legend cell align={left},    
+]
+\input{./Input/cube}
+\end{axis}
+\end{tikzpicture}
+%=========================================================================================================
+\end{document}
+
