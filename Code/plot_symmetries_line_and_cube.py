@@ -225,27 +225,27 @@ plt.show()
 #=================================================================================
 # LINEAR MODEL
 # The original solution of the linear model
-plot_LaTeX_2D(t, y_lin_ori,"../Figures/symmetries_line_and_cube/Input/line.tex","color=lin_1,line width=2pt,","$y(t)$")
+plot_LaTeX_2D(t, y_lin_ori,"../Figures/LaTeX_figures/symmetries_line_and_cube/Input/line.tex","color=lin_1,line width=2pt,","$y(t)$")
 # The first transformed solution of the linear model
-plot_LaTeX_2D(t, y_lin_hat,"../Figures/symmetries_line_and_cube/Input/line.tex","color=lin_2,line width=2pt,","$\\hat{y}(t,\\epsilon)$")
+plot_LaTeX_2D(t, y_lin_hat,"../Figures/LaTeX_figures/symmetries_line_and_cube/Input/line.tex","color=lin_2,line width=2pt,","$\\hat{y}(t,\\epsilon)$")
 # The second transformed solution of the linear model
-plot_LaTeX_2D(t, y_lin_hat_2,"../Figures/symmetries_line_and_cube/Input/line.tex","color=lin_3,line width=2pt,","$\\hat{y}(t,2\\epsilon)$")
+plot_LaTeX_2D(t, y_lin_hat_2,"../Figures/LaTeX_figures/symmetries_line_and_cube/Input/line.tex","color=lin_3,line width=2pt,","$\\hat{y}(t,2\\epsilon)$")
 # The rotation symmetry
 for index in range(len(rot)):
     if index ==0:
-        plot_LaTeX_2D(rot[index][0], rot[index][1],"../Figures/symmetries_line_and_cube/Input/line.tex","color=black,->,>=latex,densely dashed","$\\Gamma_{\\epsilon}^{R}$")
+        plot_LaTeX_2D(rot[index][0], rot[index][1],"../Figures/LaTeX_figures/symmetries_line_and_cube/Input/line.tex","color=black,->,>=latex,densely dashed","$\\Gamma_{\\epsilon}^{R}$")
     else:
-        plot_LaTeX_2D(rot[index][0], rot[index][1],"../Figures/symmetries_line_and_cube/Input/line.tex","color=black,->,>=latex,densely dashed",[])
+        plot_LaTeX_2D(rot[index][0], rot[index][1],"../Figures/LaTeX_figures/symmetries_line_and_cube/Input/line.tex","color=black,->,>=latex,densely dashed",[])
 # CUBIC MODEL
 # The original solution of the linear model
-plot_LaTeX_2D(t_cube, y_cube_ori,"../Figures/symmetries_line_and_cube/Input/cube.tex","color=cube_1,line width=2pt,","$y(t)$")
+plot_LaTeX_2D(t_cube, y_cube_ori,"../Figures/LaTeX_figures/symmetries_line_and_cube/Input/cube.tex","color=cube_1,line width=2pt,","$y(t)$")
 # The first transformed solution of the linear model
-plot_LaTeX_2D(t_cube, y_cube_hat,"../Figures/symmetries_line_and_cube/Input/cube.tex","color=cube_2,line width=2pt,","$\\hat{y}(t,\\epsilon)$")
+plot_LaTeX_2D(t_cube, y_cube_hat,"../Figures/LaTeX_figures/symmetries_line_and_cube/Input/cube.tex","color=cube_2,line width=2pt,","$\\hat{y}(t,\\epsilon)$")
 # The second transformed solution of the linear model
-plot_LaTeX_2D(t_cube, y_cube_hat_2,"../Figures/symmetries_line_and_cube/Input/cube.tex","color=cube_3,line width=2pt,","$\\hat{y}(t,2\\epsilon)$")
+plot_LaTeX_2D(t_cube, y_cube_hat_2,"../Figures/LaTeX_figures/symmetries_line_and_cube/Input/cube.tex","color=cube_3,line width=2pt,","$\\hat{y}(t,2\\epsilon)$")
 # The rotation symmetry
 for index in range(len(scaling)):
     if index ==0:
-        plot_LaTeX_2D(scaling[index][0], scaling[index][1],"../Figures/symmetries_line_and_cube/Input/cube.tex","color=black,->,>=latex,densely dashed","$\\Gamma_{\\epsilon}^{S}$")
+        plot_LaTeX_2D(scaling[index][0], scaling[index][1],"../Figures/LaTeX_figures/symmetries_line_and_cube/Input/cube.tex","color=black,->,>=latex,densely dashed","$\\Gamma_{\\epsilon}^{S}$")
     else:
-        plot_LaTeX_2D(scaling[index][0], scaling[index][1],"../Figures/symmetries_line_and_cube/Input/cube.tex","color=black,->,>=latex,densely dashed",[])
+        plot_LaTeX_2D(scaling[index][0], scaling[index][1],"../Figures/LaTeX_figures/symmetries_line_and_cube/Input/cube.tex","color=black,->,>=latex,densely dashed",[])
