@@ -296,6 +296,8 @@ epsilon_vec_lin = linspace(0,epsilon_lin,100,endpoint=True)
 # Allocate memory for the sum of squares corresponding to the fit of the linear
 # model to the transformed linear data
 SS_data_lin_fit_lin = []
+# Also, allocate memory for the theoretical prediction
+SS_theo_data_lin_fit_lin = []
 # Loop over the transformation parameters, transform the data and fit the model
 # to the transformed data
 for epsilon in epsilon_vec_lin:
@@ -309,8 +311,12 @@ for epsilon in epsilon_vec_lin:
     residuals = linear_model(t_trans,*popt)-y_trans    
     # Lastly, we append the sum of squares
     SS_data_lin_fit_lin.append(sum(array([res**2 for res in residuals]))/(len(t_trans)-1))
+    # Now, let's calculate the theoretical prediction
+    SS_theo_data_lin_fit_lin.append(sum(array([(res**2)*((1-(epsilon/t_lin[index])*(2*data_lin[index]+res))**2) for index,res in enumerate(res_data_lin_fit_lin)]))/(len(t_trans)-1))
 # Lastly, we cast our list as an np.array    
 SS_data_lin_fit_lin = array(SS_data_lin_fit_lin)
+# Also, we cast or theoretical list as an array
+SS_theo_data_lin_fit_lin = array(SS_theo_data_lin_fit_lin)
 #---------------------------------------------------------------------------------
 # CUBIC MODEL FITTED TO LINEAR DATA
 #---------------------------------------------------------------------------------
@@ -361,7 +367,7 @@ for epsilon in epsilon_vec_lin:
 # Lastly, we cast our list as an np.array    
 SS_data_cube_fit_lin = array(SS_data_cube_fit_lin)
 #---------------------------------------------------------------------------------
-# CUBIC MODEL FITTED TO LINEAR DATA
+# CUBIC MODEL FITTED TO CUBIC DATA
 #---------------------------------------------------------------------------------
 # Allocate memory for the sum of squares corresponding to the fit of the linear
 # model to the transformed linear data
@@ -395,9 +401,10 @@ fig_2, axs_2 = plt.subplots(1, 2, constrained_layout=True, figsize=(20, 8))
 # The linear model
 # The linear data: fitted line
 axs_2[0].plot(epsilon_vec_lin,SS_data_lin_fit_lin, '-', label="Fitted line" ,color=(0/256,68/256,27/256),linewidth=3.0)
+# The theoretical prediction of the linear model
+axs_2[0].plot(epsilon_vec_lin,SS_theo_data_lin_fit_lin, 'o', label="Theoretical line" ,color=(0/256,109/256,44/256),linewidth=5.0)
 # The linear data: fitted cube
 axs_2[0].plot(epsilon_vec_cube,SS_data_lin_fit_cube, '-', label="Fitted cube" ,color=(103/256,0/256,31/256),linewidth=3.0)
-# The cubic model fitted to linear data
 # Add a grid as well
 axs_2[0].grid()
 # Set the limits
