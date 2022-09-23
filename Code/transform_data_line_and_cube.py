@@ -87,6 +87,21 @@ def read_generated_data(file_str):
     y = new_array[:,1]
     # Return these two
     return t, y
+# Function 5: theoretical_error_linear.
+# The function returns the predicted theoretical
+# error for the roation operator associated with
+# the linear model. It takes 4 input arguments:
+# 1. res: the previous residual,
+# 2. epsilon: the transformation parameter,
+# 3. t: the time,
+# 4. y: the y-value at time t.
+def theoretical_error_linear(res,epsilon,t,y):
+    # Calculate the complicated term
+    complicated_term = (epsilon/t)*(2*y+res)
+    # Calculate the factor based on this
+    factor = (1-complicated_term)
+    # Finally we can return the predicted theoretical error
+    return (res**2)*(factor**2)
 #=================================================================================
 #=================================================================================
 # Overall properties of the linear model and the cube
@@ -100,38 +115,38 @@ sigma_lin = 0.1
 sigma_cube = 0.1
 # Define two transformation parameters
 # for our two models
-epsilon_lin = 1.0
-epsilon_cube = 1.0
+epsilon_lin = 0.5
+epsilon_cube = 0.5
 #=================================================================================
 #=================================================================================
 # Generate data
 # UNCOMMENT THIS SECTION IF YOU WANT TO GENERATE NEW DATA
 #=================================================================================
 #=================================================================================
-# Define the number of data points
-#num_points = 5
-# Define the errors of the linear model
-#errors_linear = random.normal(0, sigma_lin, size=(num_points,))
-# Define the errors of the cubic model
-#errors_cubic = random.normal(0, sigma_cube, size=(num_points,))
-#---------------------------------------------------------------------------------
-#---------------------------------------------------------------------------------
-# Generate data from the linear model
-#t_lin = linspace(2,6,num_points,endpoint=True)
-#data_lin = array([C_lin*t_temp+errors_linear[index] for index,t_temp in enumerate(t_lin)])
-# Define the file name
-#file_name_lin = "../Data/new_data_linear_data_sigma_" + str(round(sigma_lin,3)).replace(".","p") + ".csv"
-# Save the linear data to file
-#pd.DataFrame(data = array([list(t_lin), list(data_lin)]).T,index=["Row "+str(temp_index+1) for temp_index in range(5)],columns=["t", "y(t)"]).to_csv(file_name_lin)
-#---------------------------------------------------------------------------------
-#---------------------------------------------------------------------------------
-# Generate data from the cubic model
-#t_cube = linspace(3.5,4.5,num_points,endpoint=True)
-#data_cube = array([C_cube*(t_temp)**3+errors_cubic[index] for index,t_temp in enumerate(t_cube)])
-# Define the file name
-#file_name_cube = "../Data/new_data_cubic_data_sigma_" + str(round(sigma_cube,3)).replace(".","p") + ".csv"
-# Save the cubic data to file
-#pd.DataFrame(data = array([list(t_cube), list(data_cube)]).T,index=["Row "+str(temp_index+1) for temp_index in range(5)],columns=["t", "y(t)"]).to_csv(file_name_cube)
+# # Define the number of data points
+# num_points = 5
+# # Define the errors of the linear model
+# errors_linear = random.normal(0, sigma_lin, size=(num_points,))
+# # Define the errors of the cubic model
+# errors_cubic = random.normal(0, sigma_cube, size=(num_points,))
+# #---------------------------------------------------------------------------------
+# #---------------------------------------------------------------------------------
+# # Generate data from the linear model
+# t_lin = linspace(2,6,num_points,endpoint=True)
+# data_lin = array([C_lin*t_temp+errors_linear[index] for index,t_temp in enumerate(t_lin)])
+# # Define the file name
+# file_name_lin = "../Data/new_data_linear_data_sigma_" + str(round(sigma_lin,3)).replace(".","p") + ".csv"
+# # Save the linear data to file
+# pd.DataFrame(data = array([list(t_lin), list(data_lin)]).T,index=["Row "+str(temp_index+1) for temp_index in range(5)],columns=["t", "y(t)"]).to_csv(file_name_lin)
+# #---------------------------------------------------------------------------------
+# #---------------------------------------------------------------------------------
+# # Generate data from the cubic model
+# t_cube = linspace(3.5,4.5,num_points,endpoint=True)
+# data_cube = array([C_cube*(t_temp)**3+errors_cubic[index] for index,t_temp in enumerate(t_cube)])
+# # Define the file name
+# file_name_cube = "../Data/new_data_cubic_data_sigma_" + str(round(sigma_cube,3)).replace(".","p") + ".csv"
+# # Save the cubic data to file
+# pd.DataFrame(data = array([list(t_cube), list(data_cube)]).T,index=["Row "+str(temp_index+1) for temp_index in range(5)],columns=["t", "y(t)"]).to_csv(file_name_cube)
 #=================================================================================
 #=================================================================================
 # Read data from a file
@@ -312,7 +327,7 @@ for epsilon in epsilon_vec_lin:
     # Lastly, we append the sum of squares
     SS_data_lin_fit_lin.append(sum(array([res**2 for res in residuals]))/(len(t_trans)-1))
     # Now, let's calculate the theoretical prediction
-    SS_theo_data_lin_fit_lin.append(sum(array([(res**2)*((1-(epsilon/t_lin[index])*(2*data_lin[index]+res))**2) for index,res in enumerate(res_data_lin_fit_lin)]))/(len(t_trans)-1))
+    SS_theo_data_lin_fit_lin.append(sum(array([theoretical_error_linear(res,epsilon,t_lin[index],data_lin[index]) for index,res in enumerate(residuals)]))/(len(t_lin)-1))
 # Lastly, we cast our list as an np.array    
 SS_data_lin_fit_lin = array(SS_data_lin_fit_lin)
 # Also, we cast or theoretical list as an array
@@ -326,6 +341,8 @@ epsilon_vec_cube = linspace(0,epsilon_cube,100,endpoint=True)
 # Allocate memory for the sum of squares corresponding to the fit of the linear
 # model to the transformed linear data
 SS_data_lin_fit_cube = []
+# Also, allocate memory for the theoretical prediction
+SS_theo_data_lin_fit_cube = []
 # Loop over the transformation parameters, transform the data and fit the model
 # to the transformed data
 for epsilon in epsilon_vec_cube:
@@ -339,8 +356,12 @@ for epsilon in epsilon_vec_cube:
     residuals = cubic_model(t_trans,*popt)-y_trans    
     # Lastly, we append the sum of squares
     SS_data_lin_fit_cube.append(sum(array([res**2 for res in residuals]))/(len(t_trans)-1))
+    # Also, we calculate our theoretical prediction
+    SS_theo_data_lin_fit_cube.append(sum(array([(res**2)*((1+4*epsilon)**2) for res in residuals]))/(len(t_trans)-1))
 # Lastly, we cast our list as an np.array    
 SS_data_lin_fit_cube = array(SS_data_lin_fit_cube)
+# Also, we cast our sum of squares as an np array
+SS_theo_data_lin_fit_cube = array(SS_theo_data_lin_fit_cube)
 #---------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------
 # CUBIC DATA
@@ -351,6 +372,8 @@ SS_data_lin_fit_cube = array(SS_data_lin_fit_cube)
 # Allocate memory for the sum of squares corresponding to the fit of the linear
 # model to the transformed linear data
 SS_data_cube_fit_lin = []
+# Also, allocate memory for the theoretical prediction
+SS_theo_data_cube_fit_lin = []
 # Loop over the transformation parameters, transform the data and fit the model
 # to the transformed data
 for epsilon in epsilon_vec_lin:
@@ -364,14 +387,20 @@ for epsilon in epsilon_vec_lin:
     residuals = linear_model(t_trans,*popt)-y_trans    
     # Lastly, we append the sum of squares
     SS_data_cube_fit_lin.append(sum(array([res**2 for res in residuals]))/(len(t_trans)-1))
+    # Now, let's calculate the theoretical prediction
+    SS_theo_data_cube_fit_lin.append(sum(array([theoretical_error_linear(res,epsilon,t_cube[index],data_cube[index]) for index,res in enumerate(residuals)]))/(len(t_lin)-1))    
 # Lastly, we cast our list as an np.array    
 SS_data_cube_fit_lin = array(SS_data_cube_fit_lin)
+# Next, we cast our list as an np.array
+SS_theo_data_cube_fit_lin = array(SS_theo_data_cube_fit_lin)
 #---------------------------------------------------------------------------------
 # CUBIC MODEL FITTED TO CUBIC DATA
 #---------------------------------------------------------------------------------
 # Allocate memory for the sum of squares corresponding to the fit of the linear
 # model to the transformed linear data
 SS_data_cube_fit_cube = []
+# Also, allocate memory for the theoretical prediction
+SS_theo_data_cube_fit_cube = []
 # Loop over the transformation parameters, transform the data and fit the model
 # to the transformed data
 for epsilon in epsilon_vec_cube:
@@ -385,8 +414,12 @@ for epsilon in epsilon_vec_cube:
     residuals = cubic_model(t_trans,*popt)-y_trans    
     # Lastly, we append the sum of squares
     SS_data_cube_fit_cube.append(sum(array([res**2 for res in residuals]))/(len(t_trans)-1))
+    # Also, we calculate our theoretical prediction
+    SS_theo_data_cube_fit_cube.append(sum(array([(res**2)*((1+4*epsilon)**2) for res in residuals]))/(len(t_trans)-1))    
 # Lastly, we cast our list as an np.array    
 SS_data_cube_fit_cube = array(SS_data_cube_fit_cube)
+# We also cast it to an np.array
+SS_theo_data_cube_fit_cube = array(SS_theo_data_cube_fit_cube)
 #=================================================================================
 #=================================================================================
 # Plot the data as well as the models when we fit them to data
@@ -405,6 +438,8 @@ axs_2[0].plot(epsilon_vec_lin,SS_data_lin_fit_lin, '-', label="Fitted line" ,col
 axs_2[0].plot(epsilon_vec_lin,SS_theo_data_lin_fit_lin, 'o', label="Theoretical line" ,color=(0/256,109/256,44/256),linewidth=5.0)
 # The linear data: fitted cube
 axs_2[0].plot(epsilon_vec_cube,SS_data_lin_fit_cube, '-', label="Fitted cube" ,color=(103/256,0/256,31/256),linewidth=3.0)
+# The theoretical prediction of the cubic model
+axs_2[0].plot(epsilon_vec_lin,SS_theo_data_lin_fit_cube, 'D', label="Theoretical cube" ,color=(152/256,0/256,67/256),linewidth=5.0)
 # Add a grid as well
 axs_2[0].grid()
 # Set the limits
@@ -424,8 +459,12 @@ axs_2[0].set_title("Data generated by the linear model, $y(t)="+ str(C_lin) + "\
 # The cubic model
 # The cubic data: fitted line
 axs_2[1].plot(epsilon_vec_lin,SS_data_cube_fit_lin, '-', label="Fitted line" ,color=(0/256,68/256,27/256),linewidth=3.0)
+# The theoretical prediction of the linear model
+axs_2[1].plot(epsilon_vec_lin,SS_theo_data_cube_fit_lin, 'o', label="Theoretical line" ,color=(0/256,109/256,44/256),linewidth=5.0)
 # The cubic data: fitted cube
 axs_2[1].plot(epsilon_vec_cube,SS_data_cube_fit_cube, '-', label="Fitted cube" ,color=(103/256,0/256,31/256),linewidth=3.0)
+# The theoretical prediction of the cubic model
+axs_2[1].plot(epsilon_vec_lin,SS_theo_data_cube_fit_cube, 'D', label="Theoretical cube" ,color=(152/256,0/256,67/256),linewidth=5.0)
 # Add a lovely grid
 axs_2[1].grid()
 # Set the limits
@@ -450,8 +489,12 @@ plt.show()
 #=================================================================================
 #=================================================================================
 # Fit to data generated by the line
-plot_LaTeX_2D(epsilon_vec_lin,SS_data_lin_fit_lin,"../Figures/LaTeX_figures/transf_data_line_and_cube/Input/data_line.tex","color=lin_1,line width=2pt,","Fitted line")
-plot_LaTeX_2D(epsilon_vec_cube,SS_data_lin_fit_cube,"../Figures/LaTeX_figures/transf_data_line_and_cube/Input/data_line.tex","color=cube_1,line width=2pt,","Fitted cube")
+plot_LaTeX_2D(epsilon_vec_lin,SS_data_lin_fit_lin,"../Figures/LaTeX_figures/transf_data_line_and_cube/Input/data_line.tex","color=lin_1,line width=1pt,","Fitted line") # Linear fitted to data
+plot_LaTeX_2D(epsilon_vec_lin,SS_theo_data_lin_fit_lin,"../Figures/LaTeX_figures/transf_data_line_and_cube/Input/data_line.tex","color=lin_3,line width=1pt,dashdotted, every mark/.append style={solid, fill=lin_3},mark=otimes*,mark size=1.5pt","Theoretical line") # Theoretical line
+plot_LaTeX_2D(epsilon_vec_cube,SS_data_lin_fit_cube,"../Figures/LaTeX_figures/transf_data_line_and_cube/Input/data_line.tex","color=cube_1,line width=1pt,","Fitted cube") # Cubic fitted to data
+plot_LaTeX_2D(epsilon_vec_lin,SS_theo_data_lin_fit_cube,"../Figures/LaTeX_figures/transf_data_line_and_cube/Input/data_line.tex","color=cube_3,line width=1pt,densely dashdotted,every mark/.append style={solid, fill=cube_3},mark=diamond*,mark size=1.5pt","Theoretical cube") # Theoretical cube
 # Fit to data generated by the cube
-plot_LaTeX_2D(epsilon_vec_lin,SS_data_cube_fit_lin,"../Figures/LaTeX_figures/transf_data_line_and_cube/Input/data_cube.tex","color=lin_1,line width=2pt,","Fitted line")
-plot_LaTeX_2D(epsilon_vec_cube,SS_data_cube_fit_cube,"../Figures/LaTeX_figures/transf_data_line_and_cube/Input/data_cube.tex","color=cube_1,line width=2pt,","Fitted cube")
+plot_LaTeX_2D(epsilon_vec_lin,SS_data_cube_fit_lin,"../Figures/LaTeX_figures/transf_data_line_and_cube/Input/data_cube.tex","color=lin_1,line width=1pt,","Fitted line") # Fitted line
+plot_LaTeX_2D(epsilon_vec_lin,SS_theo_data_cube_fit_lin,"../Figures/LaTeX_figures/transf_data_line_and_cube/Input/data_cube.tex","color=lin_3,line width=1pt,dashdotted, every mark/.append style={solid, fill=lin_3},mark=otimes*,mark size=1.5pt","Theoretical line") # Theoretical line
+plot_LaTeX_2D(epsilon_vec_cube,SS_data_cube_fit_cube,"../Figures/LaTeX_figures/transf_data_line_and_cube/Input/data_cube.tex","color=cube_1,line width=1pt,","Fitted cube") # Fitted cube
+plot_LaTeX_2D(epsilon_vec_lin,SS_theo_data_cube_fit_cube,"../Figures/LaTeX_figures/transf_data_line_and_cube/Input/data_cube.tex","color=cube_3,line width=1pt,densely dashdotted,every mark/.append style={solid, fill=cube_3},mark=diamond*,mark size=1.5pt","Theoretical cube") # Theoretical cube
