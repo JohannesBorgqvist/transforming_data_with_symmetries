@@ -18,6 +18,7 @@
 #=================================================================================
 #=================================================================================
 from numpy import * # For numerical calculations,
+from scipy import integrate # For solving ODEs
 from scipy.optimize import curve_fit # For fitting curves to data
 import matplotlib.pyplot as plt # For plotting,
 import pandas as pd # For saving and reading data
@@ -111,8 +112,8 @@ def theoretical_error_linear(res,epsilon,t,y):
 C_lin = 0.1
 C_cube = 0.01
 # Define the noise level
-sigma_lin = 0.1
-sigma_cube = 0.1
+sigma_lin = 0.03
+sigma_cube = 0.03
 # Define two transformation parameters
 # for our two models
 epsilon_lin = 0.5
