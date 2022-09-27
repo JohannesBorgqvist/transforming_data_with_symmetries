@@ -112,8 +112,8 @@ def theoretical_error_linear(res,epsilon,t,y):
 C_lin = 0.1
 C_cube = 0.01
 # Define the noise level
-sigma_lin = 0.03
-sigma_cube = 0.03
+sigma_lin = 0.1
+sigma_cube = 0.1
 # Define two transformation parameters
 # for our two models
 epsilon_lin = 0.5
@@ -124,45 +124,45 @@ epsilon_cube = 0.5
 # UNCOMMENT THIS SECTION IF YOU WANT TO GENERATE NEW DATA
 #=================================================================================
 #=================================================================================
-# # Define the number of data points
-# num_points = 5
-# # Define the errors of the linear model
-# errors_linear = random.normal(0, sigma_lin, size=(num_points,))
-# # Define the errors of the cubic model
-# errors_cubic = random.normal(0, sigma_cube, size=(num_points,))
-# #---------------------------------------------------------------------------------
-# #---------------------------------------------------------------------------------
-# # Generate data from the linear model
-# t_lin = linspace(2,6,num_points,endpoint=True)
-# data_lin = array([C_lin*t_temp+errors_linear[index] for index,t_temp in enumerate(t_lin)])
-# # Define the file name
-# file_name_lin = "../Data/new_data_linear_data_sigma_" + str(round(sigma_lin,3)).replace(".","p") + ".csv"
-# # Save the linear data to file
-# pd.DataFrame(data = array([list(t_lin), list(data_lin)]).T,index=["Row "+str(temp_index+1) for temp_index in range(5)],columns=["t", "y(t)"]).to_csv(file_name_lin)
-# #---------------------------------------------------------------------------------
-# #---------------------------------------------------------------------------------
-# # Generate data from the cubic model
-# t_cube = linspace(3.5,4.5,num_points,endpoint=True)
-# data_cube = array([C_cube*(t_temp)**3+errors_cubic[index] for index,t_temp in enumerate(t_cube)])
-# # Define the file name
-# file_name_cube = "../Data/new_data_cubic_data_sigma_" + str(round(sigma_cube,3)).replace(".","p") + ".csv"
-# # Save the cubic data to file
-# pd.DataFrame(data = array([list(t_cube), list(data_cube)]).T,index=["Row "+str(temp_index+1) for temp_index in range(5)],columns=["t", "y(t)"]).to_csv(file_name_cube)
+# Define the number of data points
+num_points = 5
+# Define the errors of the linear model
+errors_linear = random.normal(0, sigma_lin, size=(num_points,))
+# Define the errors of the cubic model
+errors_cubic = random.normal(0, sigma_cube, size=(num_points,))
+#---------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------
+# Generate data from the linear model
+t_lin = linspace(1,2,num_points,endpoint=True)
+data_lin = array([C_lin*t_temp+errors_linear[index] for index,t_temp in enumerate(t_lin)])
+# Define the file name
+file_name_lin = "../Data/new_data_linear_data_sigma_" + str(round(sigma_lin,3)).replace(".","p") + ".csv"
+# Save the linear data to file
+pd.DataFrame(data = array([list(t_lin), list(data_lin)]).T,index=["Row "+str(temp_index+1) for temp_index in range(num_points)],columns=["t", "y(t)"]).to_csv(file_name_lin)
+#---------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------
+# Generate data from the cubic model
+t_cube = linspace(1,2,num_points,endpoint=True)
+data_cube = array([C_cube*(t_temp)**3+errors_cubic[index] for index,t_temp in enumerate(t_cube)])
+# Define the file name
+file_name_cube = "../Data/new_data_cubic_data_sigma_" + str(round(sigma_cube,3)).replace(".","p") + ".csv"
+# Save the cubic data to file
+pd.DataFrame(data = array([list(t_cube), list(data_cube)]).T,index=["Row "+str(temp_index+1) for temp_index in range(num_points)],columns=["t", "y(t)"]).to_csv(file_name_cube)
 #=================================================================================
 #=================================================================================
 # Read data from a file
 #=================================================================================
 #=================================================================================
-# Linear data: define the file we want to read the data from
-cubic_data_str = "../Data/cubic_data_sigma_" + str(round(sigma_cube,3)).replace(".","p") + ".csv"
-# Read the data from the file
-t_cube, data_cube = read_generated_data(cubic_data_str)
-# Cubic data: define the file we want to read the data from
-linear_data_str = "../Data/linear_data_sigma_" + str(sigma_lin).replace(".","p") + ".csv"
-# Read the data from the file
-t_lin, data_lin = read_generated_data(linear_data_str)
-# Calculate the number of points
-num_points = len(t_lin)
+# # Linear data: define the file we want to read the data from
+# cubic_data_str = "../Data/cubic_data_sigma_" + str(round(sigma_cube,3)).replace(".","p") + ".csv"
+# # Read the data from the file
+# t_cube, data_cube = read_generated_data(cubic_data_str)
+# # Cubic data: define the file we want to read the data from
+# linear_data_str = "../Data/linear_data_sigma_" + str(sigma_lin).replace(".","p") + ".csv"
+# # Read the data from the file
+# t_lin, data_lin = read_generated_data(linear_data_str)
+# # Calculate the number of points
+# num_points = len(t_lin)
 #=================================================================================
 #=================================================================================
 # Fit models to data
@@ -321,14 +321,16 @@ for epsilon in epsilon_vec_lin:
     t_trans = array([t_lin[index]*cos(epsilon)-y*sin(epsilon) for index,y in enumerate(data_lin)])
     # Transform the data points with the given transformation parameter
     y_trans = array([t_lin[index]*sin(epsilon)+y*cos(epsilon) for index,y in enumerate(data_lin)])
-    # Now, we fit the linear model to the transformed data
-    popt, pcov = curve_fit(linear_model, t_trans, y_trans)
+    # Extract the temporary parameter
+    C_temp = popt_data_lin_fit_lin[0]
+    # Calculate the transformed parameter C in y=Ct
+    C_hat = ((sin(epsilon)+C_temp*cos(epsilon))/(cos(epsilon)-C_temp*sin(epsilon)))
     # Next, we calculate the residuals
-    residuals = linear_model(t_trans,*popt)-y_trans    
+    residuals = array([C_hat*t_temp for t_temp in t_trans])-y_trans    
     # Lastly, we append the sum of squares
     SS_data_lin_fit_lin.append(sum(array([res**2 for res in residuals]))/(len(t_trans)-1))
     # Now, let's calculate the theoretical prediction
-    SS_theo_data_lin_fit_lin.append(sum(array([theoretical_error_linear(res,epsilon,t_lin[index],data_lin[index]) for index,res in enumerate(residuals)]))/(len(t_lin)-1))
+    SS_theo_data_lin_fit_lin.append(sum(array([theoretical_error_linear(res,epsilon,t_lin[index],data_lin[index]) for index,res in enumerate(res_data_lin_fit_lin)]))/(len(t_lin)-1))
 # Lastly, we cast our list as an np.array    
 SS_data_lin_fit_lin = array(SS_data_lin_fit_lin)
 # Also, we cast or theoretical list as an array
@@ -351,14 +353,16 @@ for epsilon in epsilon_vec_cube:
     t_trans = array([t_lin[index]*exp(epsilon) for index,y in enumerate(data_lin)])
     # Transform the data points with the given transformation parameter
     y_trans = array([y*exp(epsilon) for index,y in enumerate(data_lin)])
-    # Now, we fit the cubic model to the transformed data
-    popt, pcov = curve_fit(cubic_model, t_trans, y_trans)
+    # Extract the temporary parameter
+    C_temp = popt_data_lin_fit_cube[0]
+    # Calculate the transformed parameter C in y=Ct^3
+    C_hat = C_temp*exp(-2*epsilon)
     # Next, we calculate the residuals
-    residuals = cubic_model(t_trans,*popt)-y_trans    
+    residuals = array([C_hat*(t_temp**3) for t_temp in t_trans])-y_trans
     # Lastly, we append the sum of squares
     SS_data_lin_fit_cube.append(sum(array([res**2 for res in residuals]))/(len(t_trans)-1))
     # Also, we calculate our theoretical prediction
-    SS_theo_data_lin_fit_cube.append(sum(array([(res**2)*((1+4*epsilon)**2) for res in residuals]))/(len(t_trans)-1))
+    SS_theo_data_lin_fit_cube.append(sum(array([(res**2)*((1+4*epsilon)**2) for res in res_data_lin_fit_cube]))/(len(t_trans)-1))
 # Lastly, we cast our list as an np.array    
 SS_data_lin_fit_cube = array(SS_data_lin_fit_cube)
 # Also, we cast our sum of squares as an np array
@@ -382,14 +386,16 @@ for epsilon in epsilon_vec_lin:
     t_trans = array([t_cube[index]*cos(epsilon)-y*sin(epsilon) for index,y in enumerate(data_cube)])
     # Transform the data points with the given transformation parameter
     y_trans = array([t_cube[index]*sin(epsilon)+y*cos(epsilon) for index,y in enumerate(data_cube)])
-    # Now, we fit the linear model to the transformed data
-    popt, pcov = curve_fit(linear_model, t_trans, y_trans)
+    # Extract the temporary parameter
+    C_temp = popt_data_cube_fit_lin[0]
+    # Calculate the transformed parameter C in y=Ct
+    C_hat = ((sin(epsilon)+C_temp*cos(epsilon))/(cos(epsilon)-C_temp*sin(epsilon)))
     # Next, we calculate the residuals
-    residuals = linear_model(t_trans,*popt)-y_trans    
+    residuals = array([C_hat*t_temp for t_temp in t_trans])-y_trans
     # Lastly, we append the sum of squares
     SS_data_cube_fit_lin.append(sum(array([res**2 for res in residuals]))/(len(t_trans)-1))
     # Now, let's calculate the theoretical prediction
-    SS_theo_data_cube_fit_lin.append(sum(array([theoretical_error_linear(res,epsilon,t_cube[index],data_cube[index]) for index,res in enumerate(residuals)]))/(len(t_lin)-1))    
+    SS_theo_data_cube_fit_lin.append(sum(array([theoretical_error_linear(res,epsilon,t_cube[index],data_cube[index]) for index,res in enumerate(res_data_cube_fit_lin)]))/(len(t_lin)-1))    
 # Lastly, we cast our list as an np.array    
 SS_data_cube_fit_lin = array(SS_data_cube_fit_lin)
 # Next, we cast our list as an np.array
@@ -409,14 +415,16 @@ for epsilon in epsilon_vec_cube:
     t_trans = array([t_cube[index]*exp(epsilon) for index,y in enumerate(data_cube)])
     # Transform the data points with the given transformation parameter
     y_trans = array([y*exp(epsilon) for index,y in enumerate(data_cube)])
-    # Now, we fit the cubic model to the transformed data
-    popt, pcov = curve_fit(cubic_model, t_trans, y_trans)
+    # Extract the temporary parameter
+    C_temp = popt_data_cube_fit_cube[0]
+    # Calculate the transformed parameter C in y=Ct^3
+    C_hat = C_temp*exp(-2*epsilon)
     # Next, we calculate the residuals
-    residuals = cubic_model(t_trans,*popt)-y_trans    
+    residuals = array([C_hat*(t_temp**3) for t_temp in t_trans])-y_trans
     # Lastly, we append the sum of squares
     SS_data_cube_fit_cube.append(sum(array([res**2 for res in residuals]))/(len(t_trans)-1))
     # Also, we calculate our theoretical prediction
-    SS_theo_data_cube_fit_cube.append(sum(array([(res**2)*((1+4*epsilon)**2) for res in residuals]))/(len(t_trans)-1))    
+    SS_theo_data_cube_fit_cube.append(sum(array([(res**2)*((1+4*epsilon)**2) for res in res_data_cube_fit_cube]))/(len(t_trans)-1))    
 # Lastly, we cast our list as an np.array    
 SS_data_cube_fit_cube = array(SS_data_cube_fit_cube)
 # We also cast it to an np.array
@@ -445,7 +453,7 @@ axs_2[0].plot(epsilon_vec_lin,SS_theo_data_lin_fit_cube, 'D', label="Theoretical
 axs_2[0].grid()
 # Set the limits
 #axs_2[0].set_xlim([-1, 1])
-#axs_2[0].set_ylim([-1, 1])
+#axs_2[0].set_ylim([0, 0.3])
 # Legends and axes labels
 axs_2[0].legend(loc='best',prop={"size":20})
 axs_2[0].set_ylabel('Fit, $SS(\\epsilon)$',fontsize=25)
@@ -470,7 +478,7 @@ axs_2[1].plot(epsilon_vec_lin,SS_theo_data_cube_fit_cube, 'D', label="Theoretica
 axs_2[1].grid()
 # Set the limits
 #axs_2[1].set_xlim([-2, 2])
-#axs_2[1].set_ylim([-2, 2])
+#axs_2[1].set_ylim([0, 0.3])
 # Legends and axes labels
 axs_2[1].legend(loc='best',prop={"size":20})
 axs_2[1].set_ylabel('Fit, $SS(\\epsilon)$',fontsize=25)
