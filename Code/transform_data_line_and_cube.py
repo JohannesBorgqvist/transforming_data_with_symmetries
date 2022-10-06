@@ -118,11 +118,11 @@ def theoretical_error_circular(res,epsilon,t,y):
 # 2. epsilon: the transformation parameter,
 # 3. t: the time,
 # 4. y: the y-value at time t.
-def theoretical_error_cubic(res,epsilon,t,y):
+def theoretical_error_parabolic(res,epsilon,t,y):
     # Define the linear term
-    factor = (1+4*epsilon)
+    factor = (1+3*epsilon)
     # Add the squared term
-    factor += ((epsilon**2)/(2)) * (4+6*(y/t)+(3/t)*res)
+    factor += ((epsilon**2)/(2)) * 3
     # Finally we can return the predicted theoretical error
     return (res**2)*(factor**2)
 #=================================================================================
@@ -169,7 +169,7 @@ pd.DataFrame(data = array([list(t_circle), list(data_circle)]).T,index=["Row "+s
 #---------------------------------------------------------------------------------
 # Generate data from the cubic model
 t_parabola = linspace(t_min,t_max,num_points,endpoint=True)
-data_parabola = array([C_p1*(t_temp)**3+C_p2+errors_parabola[index] for index,t_temp in enumerate(t_parabola)])
+data_parabola = array([C_p1*(t_temp)**2+C_p2+errors_parabola[index] for index,t_temp in enumerate(t_parabola)])
 # Define the file name
 file_name_parabola = "../Data/new_data_parabola_data_sigma_" + str(round(sigma_parabola,3)).replace(".","p") + ".csv"
 # Save the cubic data to file
@@ -199,24 +199,25 @@ pd.DataFrame(data = array([list(t_parabola), list(data_parabola)]).T,index=["Row
 # # LINEAR DATA
 # #---------------------------------------------------------------------------------
 # #---------------------------------------------------------------------------------
-# # 1. Fit the linear model to linear data
+# # 1. Fit the circular model to circular data
 popt_data_circle_fit_circle, pcov_data_circle_fit_circle = curve_fit(circular_model, t_circle, data_circle)
 # # Calculate residuals
 res_data_circle_fit_circle = circular_model(t_circle,*popt_data_circle_fit_circle)-data_circle
-# # Calculate the sum of squares, SS
-SS_data_circle_fit_circle = sum(array([res**2 for res in res_data_circle_fit_circle]))/(len(t_circle)-1)
 # # Extract parameter
 C_circle_opt_data_circle = popt_data_circle_fit_circle[0]
+# # Calculate the sum of squares, SS
+residuals =  array([abs(sqrt(t_circle[index]**2 + y_temp**2)-C_circle_opt_data_circle) for index,y_temp in enumerate(data_circle)])
+SS_data_circle_fit_circle_val = sum(array([res**2 for res in residuals]))
 # # Generate the optimal line
 t_circle_plot = linspace(t_circle[0],t_circle[-1],100)
 circle_opt_data_circle = array([sqrt(C_circle_opt_data_circle-t_temp**2) for t_temp in t_circle_plot])
 # #---------------------------------------------------------------------------------
-# # 2. Fit the cubic model to linear data
+# # 2. Fit the parabolic model to circle data
 popt_data_circle_fit_parabola, pcov_data_circle_fit_parabola = curve_fit(parabolic_model, t_circle, data_circle)
 # # Calculate residuals
 res_data_circle_fit_parabola = parabolic_model(t_circle,*popt_data_circle_fit_parabola)-data_circle
 # # Calculate the sum of squares, SS
-SS_data_circle_fit_parabola = sum(array([res**2 for res in res_data_circle_fit_parabola]))/(len(t_circle)-1)
+SS_data_circle_fit_parabola_val = sum(array([res**2 for res in res_data_circle_fit_parabola]))
 # # Extract parameter
 C_p1_opt_data_circle = popt_data_circle_fit_parabola[0]
 C_p2_opt_data_circle = popt_data_circle_fit_parabola[1]
@@ -228,24 +229,26 @@ parabola_opt_data_circle = array([C_p1_opt_data_circle*(t_temp)**2+C_p2_opt_data
 # PARABOLIC DATA
 #---------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------
-# # 1. Fit the linear model to linear data
+# # 1. Fit the circular model to parabolic data
 popt_data_parabola_fit_circle, pcov_data_parabola_fit_circle = curve_fit(circular_model, t_parabola, data_parabola)
 # # Calculate residuals
 res_data_parabola_fit_circle = circular_model(t_parabola,*popt_data_parabola_fit_circle)-data_parabola
-# # Calculate the sum of squares, SS
-SS_data_parabola_fit_circle = sum(array([res**2 for res in res_data_parabola_fit_circle]))/(len(t_parabola)-1)
 # # Extract parameter
 C_circle_opt_data_parabola = popt_data_parabola_fit_circle[0]
+# # Calculate the sum of squares, SS
+residuals =  array([abs(sqrt(t_parabola[index]**2 + y_temp**2)-C_circle_opt_data_parabola) for index,y_temp in enumerate(data_parabola)])
+SS_data_parabola_fit_circle_val = sum(array([res**2 for res in residuals]))
 # # Generate the optimal line
-t_parabola_plot = linspace(t_parabola[0],t_parabola[-1],100)
+print(C_circle_opt_data_parabola)
+t_parabola_plot = linspace(t_parabola[0],C_circle_opt_data_parabola,100)
 circle_opt_data_parabola = array([sqrt(C_circle_opt_data_parabola-t_temp**2) for t_temp in t_parabola_plot])
 # #---------------------------------------------------------------------------------
-# # 2. Fit the cubic model to linear data
+# # 2. Fit the parabolic model to parabolic data
 popt_data_parabola_fit_parabola, pcov_data_parabola_fit_parabola = curve_fit(parabolic_model, t_parabola, data_parabola)
 # # Calculate residuals
 res_data_parabola_fit_parabola = parabolic_model(t_parabola,*popt_data_parabola_fit_parabola)-data_parabola
 # # Calculate the sum of squares, SS
-SS_data_parabola_fit_parabola = sum(array([res**2 for res in res_data_parabola_fit_parabola]))/(len(t_parabola)-1)
+SS_data_parabola_fit_parabola_val = sum(array([res**2 for res in res_data_parabola_fit_parabola]))
 # # Extract parameter
 C_p1_opt_data_parabola = popt_data_parabola_fit_parabola[0]
 C_p2_opt_data_parabola = popt_data_parabola_fit_parabola[1]
@@ -266,9 +269,9 @@ fig_1, axs_1 = plt.subplots(1, 2, constrained_layout=True, figsize=(20, 8))
 # The linear data
 axs_1[0].plot(t_circle,data_circle, 'o', label="Data circle, $e_i\\sim\\mathcal{N}(0,\\sigma),\quad\\sigma="+ str(round(sigma_circle,3))+ "$" ,color=(0/256,0/256,0/256),linewidth=3.0)
 # The linear model fitted to linear data
-axs_1[0].plot(t_circle_plot,circle_opt_data_circle, '-', label="Circle opt, $SS= " + str(round(SS_data_circle_fit_circle,3)) +"$" ,color=(0/256,68/256,27/256),linewidth=3.0)
+axs_1[0].plot(t_circle_plot,circle_opt_data_circle, '-', label="Circle opt, $SS= " + str(round(SS_data_circle_fit_circle_val,3)) +"$" ,color=(0/256,68/256,27/256),linewidth=3.0)
 # The cubic model fitted to linear data
-axs_1[0].plot(t_circle_opt_data_parabola,parabola_opt_data_circle, '-', label="Parabola opt, $SS= " + str(round(SS_data_circle_fit_parabola,3)) +"$" ,color=(103/256,0/256,31/256),linewidth=3.0)
+axs_1[0].plot(t_circle_opt_data_parabola,parabola_opt_data_circle, '-', label="Parabola opt, $SS= " + str(round(SS_data_circle_fit_parabola_val,3)) +"$" ,color=(103/256,0/256,31/256),linewidth=3.0)
 # Add a grid as well
 axs_1[0].grid()
 # Set the limits
@@ -289,9 +292,9 @@ axs_1[0].set_title("Data generated by the linear model, $y(t)=\\sqrt{"+ str(C_ci
 # The original cubic curve
 axs_1[1].plot(t_parabola,data_parabola, '<', label="Data parabola, $e_i\\sim\\mathcal{N}(0,\\sigma),\quad\\sigma="+ str(round(sigma_parabola,3))+ "$" ,color=(0/256,0/256,0/256),linewidth=3.0)
 # The linear model fitted to linear data
-axs_1[1].plot(t_parabola_plot,circle_opt_data_parabola, '-', label="Circle opt, $SS= " + str(round(SS_data_parabola_fit_circle,3)) +"$" ,color=(0/256,68/256,27/256),linewidth=3.0)
+axs_1[1].plot(t_parabola_plot,circle_opt_data_parabola, '-', label="Circle opt, $SS= " + str(round(SS_data_parabola_fit_circle_val,3)) +"$" ,color=(0/256,68/256,27/256),linewidth=3.0)
 # The cubic model fitted to linear data
-axs_1[1].plot(t_parabola_opt_data_parabola,parabola_opt_data_parabola, '-', label="Parabola opt, $SS= " + str(round(SS_data_parabola_fit_parabola,3)) +"$" ,color=(103/256,0/256,31/256),linewidth=3.0)
+axs_1[1].plot(t_parabola_opt_data_parabola,parabola_opt_data_parabola, '-', label="Parabola opt, $SS= " + str(round(SS_data_parabola_fit_parabola_val,3)) +"$" ,color=(103/256,0/256,31/256),linewidth=3.0)
 # Add a lovely grid
 axs_1[1].grid()
 # Set the limits
@@ -355,114 +358,111 @@ for epsilon in epsilon_vec_circle:
     C_temp = popt_data_circle_fit_circle[0]
     # Calculate the transformed parameter C in y=Ct
     C_hat = C_temp
-    # Next, we calculate the residuals
-    residuals_y = array([sqrt(C_hat-t_temp**2) for t_temp in t_trans])-y_trans
-    #residuals_y = circle_opt_data_circle-y_trans
-    residuals_t = t_trans - t_circle
-    residuals = array([sqrt(residuals_y[index]**2 + residuals_t[index]**2) for index,y_temp in enumerate(residuals_y)])
+    # Define the residuals based on the properties of the circle
+    residuals = array([abs(sqrt(t_trans[index]**2 + y_temp**2)-C_hat) for index,y_temp in enumerate(y_trans)])
     # Lastly, we append the sum of squares
-    SS_data_circle_fit_circle_transf.append(sum(array([res**2 for res in residuals]))/(len(t_trans)-1))
+    SS_data_circle_fit_circle_transf.append(sum(array([res**2 for res in residuals])))
     # Now, let's calculate the theoretical prediction
     #SS_theo_data_circle_fit_circle.append(sum(array([theoretical_error_circular(res,epsilon,t_circle[index],data_circle[index]) for index,res in enumerate(res_data_circle_fit_circle) if index > 0]))/(len(t_circle)-1))
-    SS_theo_data_circle_fit_circle.append(SS_data_circle_fit_circle)
+    SS_theo_data_circle_fit_circle.append(SS_data_circle_fit_circle_val)
 # Lastly, we cast our list as an np.array    
-SS_data_circle_fit_circle = array(SS_data_circle_fit_circle)
+SS_data_circle_fit_circle = array(SS_data_circle_fit_circle_transf)
 # Also, we cast or theoretical list as an array
 SS_theo_data_circle_fit_circle = array(SS_theo_data_circle_fit_circle)
-# #---------------------------------------------------------------------------------
-# # CUBIC MODEL FITTED TO LINEAR DATA
-# #---------------------------------------------------------------------------------
-# # Define a vector with transformation parameters that we wish to transform the
-# # data with
-# epsilon_vec_cube = linspace(0,epsilon_cube,100,endpoint=True)
-# # Allocate memory for the sum of squares corresponding to the fit of the linear
-# # model to the transformed linear data
-# SS_data_lin_fit_cube = []
-# # Also, allocate memory for the theoretical prediction
-# SS_theo_data_lin_fit_cube = []
-# # Loop over the transformation parameters, transform the data and fit the model
-# # to the transformed data
-# for epsilon in epsilon_vec_cube:
-#     # Transform the time points with the given transformation parameter
-#     t_trans = array([t_lin[index]*exp(epsilon) for index,y in enumerate(data_lin)])
-#     # Transform the data points with the given transformation parameter
-#     y_trans = array([y*exp(epsilon) for index,y in enumerate(data_lin)])
-#     # Extract the temporary parameter
-#     C_temp = popt_data_lin_fit_cube[0]
-#     # Calculate the transformed parameter C in y=Ct^3
-#     C_hat = C_temp*exp(-2*epsilon)
-#     # Next, we calculate the residuals
-#     residuals = array([C_hat*(t_temp**3) for t_temp in t_trans])-y_trans
-#     # Lastly, we append the sum of squares
-#     SS_data_lin_fit_cube.append(sum(array([res**2 for res in residuals]))/(len(t_trans)-1))
-#     # Also, we calculate our theoretical prediction
-#     SS_theo_data_lin_fit_cube.append(sum(array([theoretical_error_cubic(res,epsilon,t_lin[index],data_lin[index]) for index,res in enumerate(res_data_lin_fit_cube)]))/(len(t_trans)-1))
-# # Lastly, we cast our list as an np.array    
-# SS_data_lin_fit_cube = array(SS_data_lin_fit_cube)
-# # Also, we cast our sum of squares as an np array
-# SS_theo_data_lin_fit_cube = array(SS_theo_data_lin_fit_cube)
-# #---------------------------------------------------------------------------------
-# #---------------------------------------------------------------------------------
-# # CUBIC DATA
-# #---------------------------------------------------------------------------------
-# #---------------------------------------------------------------------------------
-# # LINEAR MODEL FITTED TO CUBIC DATA
-# #---------------------------------------------------------------------------------
-# # Allocate memory for the sum of squares corresponding to the fit of the linear
-# # model to the transformed linear data
-# SS_data_cube_fit_lin = []
-# # Also, allocate memory for the theoretical prediction
-# SS_theo_data_cube_fit_lin = []
-# # Loop over the transformation parameters, transform the data and fit the model
-# # to the transformed data
-# for epsilon in epsilon_vec_lin:
-#     # Transform the time points with the given transformation parameter
-#     t_trans = array([t_cube[index]*cos(epsilon)-y*sin(epsilon) for index,y in enumerate(data_cube)])
-#     # Transform the data points with the given transformation parameter
-#     y_trans = array([t_cube[index]*sin(epsilon)+y*cos(epsilon) for index,y in enumerate(data_cube)])
-#     # Extract the temporary parameter
-#     C_temp = popt_data_cube_fit_lin[0]
-#     # Calculate the transformed parameter C in y=Ct
-#     C_hat = ((sin(epsilon)+C_temp*cos(epsilon))/(cos(epsilon)-C_temp*sin(epsilon)))
-#     # Next, we calculate the residuals
-#     residuals = array([C_hat*t_temp for t_temp in t_trans])-y_trans
-#     # Lastly, we append the sum of squares
-#     SS_data_cube_fit_lin.append(sum(array([res**2 for res in residuals]))/(len(t_trans)-1))
-#     # Now, let's calculate the theoretical prediction
-#     SS_theo_data_cube_fit_lin.append(sum(array([theoretical_error_linear(res,epsilon,t_cube[index],data_cube[index]) for index,res in enumerate(res_data_cube_fit_lin)]))/(len(t_lin)-1))    
-# # Lastly, we cast our list as an np.array    
-# SS_data_cube_fit_lin = array(SS_data_cube_fit_lin)
-# # Next, we cast our list as an np.array
-# SS_theo_data_cube_fit_lin = array(SS_theo_data_cube_fit_lin)
-# #---------------------------------------------------------------------------------
-# # CUBIC MODEL FITTED TO CUBIC DATA
-# #---------------------------------------------------------------------------------
-# # Allocate memory for the sum of squares corresponding to the fit of the linear
-# # model to the transformed linear data
-# SS_data_cube_fit_cube = []
-# # Also, allocate memory for the theoretical prediction
-# SS_theo_data_cube_fit_cube = []
-# # Loop over the transformation parameters, transform the data and fit the model
-# # to the transformed data
-# for epsilon in epsilon_vec_cube:
-#     # Transform the time points with the given transformation parameter
-#     t_trans = array([t_cube[index]*exp(epsilon) for index,y in enumerate(data_cube)])
-#     # Transform the data points with the given transformation parameter
-#     y_trans = array([y*exp(epsilon) for index,y in enumerate(data_cube)])
-#     # Extract the temporary parameter
-#     C_temp = popt_data_cube_fit_cube[0]
-#     # Calculate the transformed parameter C in y=Ct^3
-#     C_hat = C_temp*exp(-2*epsilon)
-#     # Next, we calculate the residuals
-#     residuals = array([C_hat*(t_temp**3) for t_temp in t_trans])-y_trans
-#     # Lastly, we append the sum of squares
-#     SS_data_cube_fit_cube.append(sum(array([res**2 for res in residuals]))/(len(t_trans)-1))
-#     # Also, we calculate our theoretical prediction
-#     SS_theo_data_cube_fit_cube.append(sum(array([theoretical_error_cubic(res,epsilon,t_cube[index],data_cube[index]) for index,res in enumerate(res_data_cube_fit_cube)]))/(len(t_trans)-1))    
-# # Lastly, we cast our list as an np.array    
-# SS_data_cube_fit_cube = array(SS_data_cube_fit_cube)
-# # We also cast it to an np.array
-# SS_theo_data_cube_fit_cube = array(SS_theo_data_cube_fit_cube)
+#---------------------------------------------------------------------------------
+# PARABOLIC MODEL FITTED TO CIRCLE DATA
+#---------------------------------------------------------------------------------
+# Define a vector with transformation parameters that we wish to transform the
+# data with
+epsilon_vec_parabola = linspace(0,epsilon_parabola,100,endpoint=True)
+# Allocate memory for the sum of squares corresponding to the fit of the linear
+# model to the transformed linear data
+SS_data_circle_fit_parabola = []
+# Also, allocate memory for the theoretical prediction
+SS_theo_data_circle_fit_parabola = []
+# Loop over the transformation parameters, transform the data and fit the model
+# to the transformed data
+for epsilon in epsilon_vec_parabola:
+    # Transform the time points with the given transformation parameter
+    t_trans = array([t_circle[index]*exp(epsilon) for index,y in enumerate(data_circle)])
+    # Transform the data points with the given transformation parameter
+    y_trans = array([y*exp(epsilon) for index,y in enumerate(data_circle)])
+    # Extract the temporary parameter
+    C_temp = popt_data_circle_fit_parabola[0]
+    # Calculate the transformed parameter C in y=Ct^3
+    C_hat = C_temp*exp(-epsilon)
+    # Next, we calculate the residuals
+    residuals = array([C_hat*(t_temp**2) for t_temp in t_trans])-y_trans
+    # Lastly, we append the sum of squares
+    SS_data_circle_fit_parabola.append(sum(array([res**2 for res in residuals])))
+    # Also, we calculate our theoretical prediction
+    SS_theo_data_circle_fit_parabola.append(sum(array([theoretical_error_parabolic(res,epsilon,t_circle[index],data_circle[index]) for index,res in enumerate(res_data_circle_fit_parabola)])))
+# Lastly, we cast our list as an np.array    
+SS_data_circle_fit_parabola = array(SS_data_circle_fit_parabola)
+# Also, we cast our sum of squares as an np array
+SS_theo_data_circle_fit_parabola = array(SS_theo_data_circle_fit_parabola)
+#---------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------
+# PARABOLIC DATA
+#---------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------
+# CIRCLE MODEL FITTED TO PARABOLIC DATA
+#---------------------------------------------------------------------------------
+# Allocate memory for the sum of squares corresponding to the fit of the linear
+# model to the transformed linear data
+SS_data_parabola_fit_circle = []
+# Also, allocate memory for the theoretical prediction
+SS_theo_data_parabola_fit_circle = []
+# Loop over the transformation parameters, transform the data and fit the model
+# to the transformed data
+for epsilon in epsilon_vec_circle:
+    # Transform the time points with the given transformation parameter
+    t_trans = array([t_parabola[index]*cos(epsilon)-y*sin(epsilon) for index,y in enumerate(data_parabola)])
+    # Transform the data points with the given transformation parameter
+    y_trans = array([t_parabola[index]*sin(epsilon)+y*cos(epsilon) for index,y in enumerate(data_parabola)])
+    # Extract the temporary parameter
+    C_temp = popt_data_parabola_fit_circle[0]
+    # Calculate the transformed parameter C in y=Ct
+    C_hat = C_temp
+    # Define the residuals based on the properties of the circle
+    residuals = array([abs(sqrt(t_trans[index]**2 + y_temp**2)-C_hat) for index,y_temp in enumerate(y_trans)])
+    # Lastly, we append the sum of squares
+    SS_data_parabola_fit_circle.append(sum(array([res**2 for res in residuals])))
+    # Now, let's calculate the theoretical prediction
+    SS_theo_data_parabola_fit_circle.append(SS_data_parabola_fit_circle_val)
+# Lastly, we cast our list as an np.array    
+SS_data_parabola_fit_circle = array(SS_data_parabola_fit_circle)
+# Next, we cast our list as an np.array
+SS_theo_data_parabola_fit_circle = array(SS_theo_data_parabola_fit_circle)
+#---------------------------------------------------------------------------------
+# PARABOLIC MODEL FITTED TO PARABOLIC DATA
+#---------------------------------------------------------------------------------
+# Allocate memory for the sum of squares corresponding to the fit of the linear
+# model to the transformed linear data
+SS_data_parabola_fit_parabola = []
+# Also, allocate memory for the theoretical prediction
+SS_theo_data_parabola_fit_parabola = []
+# Loop over the transformation parameters, transform the data and fit the model
+# to the transformed data
+for epsilon in epsilon_vec_parabola:
+    # Transform the time points with the given transformation parameter
+    t_trans = array([t_parabola[index]*exp(epsilon) for index,y in enumerate(data_parabola)])
+    # Transform the data points with the given transformation parameter
+    y_trans = array([y*exp(epsilon) for index,y in enumerate(data_parabola)])
+    # Extract the temporary parameter
+    C_temp = popt_data_parabola_fit_parabola[0]
+    # Calculate the transformed parameter C in y=Ct^2
+    C_hat = C_temp*exp(-epsilon)
+    # Next, we calculate the residuals
+    residuals = array([C_hat*(t_temp**2) for t_temp in t_trans])-y_trans
+    # Lastly, we append the sum of squares
+    SS_data_parabola_fit_parabola.append(sum(array([res**2 for res in residuals])))
+    # Also, we calculate our theoretical prediction
+    SS_theo_data_parabola_fit_parabola.append(sum(array([theoretical_error_parabolic(res,epsilon,t_parabola[index],data_parabola[index]) for index,res in enumerate(res_data_parabola_fit_parabola)])))
+# Lastly, we cast our list as an np.array    
+SS_data_parabola_fit_parabola = array(SS_data_parabola_fit_parabola)
+# We also cast it to an np.array
+SS_theo_data_parabola_fit_parabola = array(SS_theo_data_parabola_fit_parabola)
 # #=================================================================================
 # #=================================================================================
 # # Plot the data as well as the models when we fit them to data
@@ -474,57 +474,57 @@ plt.rcParams['text.usetex'] = True
 fig_2, axs_2 = plt.subplots(1, 2, constrained_layout=True, figsize=(20, 8))
 # #---------------------------------------------------------------------------------
 # #---------------------------------------------------------------------------------
-# # The linear model
-# # The linear data: fitted line
-axs_2[0].plot(epsilon_vec_circle,SS_data_circle_fit_circle_transf, '-', label="Fitted circle" ,color=(0/256,68/256,27/256),linewidth=3.0)
+# # The circular model
+# # The circular data: fitted circle
+axs_2[0].plot(epsilon_vec_circle,SS_data_circle_fit_circle_transf, 'o', label="Fitted circle" ,color=(0/256,68/256,27/256),linewidth=3.0,zorder=1)
 # # The theoretical prediction of the linear model
-axs_2[0].plot(epsilon_vec_circle,SS_theo_data_circle_fit_circle, 'o', label="Theoretical circle" ,color=(0/256,109/256,44/256),linewidth=15.0)
-# # The linear data: fitted cube
-# axs_2[0].plot(epsilon_vec_cube,SS_data_lin_fit_cube, '-', label="Fitted cube" ,color=(103/256,0/256,31/256),linewidth=3.0)
-# # The theoretical prediction of the cubic model
-# axs_2[0].plot(epsilon_vec_lin,SS_theo_data_lin_fit_cube, 'D', label="Theoretical cube" ,color=(152/256,0/256,67/256),linewidth=5.0)
-# Add a grid as well
+axs_2[0].plot(epsilon_vec_circle,SS_theo_data_circle_fit_circle, '-', label="Theoretical circle" ,color=(0/256,109/256,44/256),linewidth=3.0,zorder=0)
+# The circle data: fitted parabola
+axs_2[0].plot(epsilon_vec_parabola,SS_data_circle_fit_parabola, '-', label="Fitted parabola" ,color=(103/256,0/256,31/256),linewidth=3.0)
+# The theoretical prediction of the cubic model
+axs_2[0].plot(epsilon_vec_circle,SS_theo_data_circle_fit_parabola, 'D', label="Theoretical parabola" ,color=(152/256,0/256,67/256),linewidth=5.0)
+#Add a grid as well
 axs_2[0].grid()
-# Set the limits
+#Set the limits
 #axs_2[0].set_xlim([0, 0.5])
-#axs_2[0].set_ylim([0, 0.3])
-# Legends and axes labels
+#axs_2[0].set_ylim([0, 0.5])
+#Legends and axes labels
 axs_2[0].legend(loc='best',prop={"size":20})
 axs_2[0].set_ylabel('Fit, $SS(\\epsilon)$',fontsize=25)
 axs_2[0].set_xlabel('Transformation parameter, $\\epsilon$',fontsize=25)
-# Change the size of the ticks
+#Change the size of the ticks
 axs_2[0].tick_params(axis='both', which='major', labelsize=20)
 axs_2[0].tick_params(axis='both', which='minor', labelsize=20)
-# Title and saving the figure
+#Title and saving the figure
 axs_2[0].set_title("Data generated by the linear model, $y(t)=\\sqrt{"+ str(C_circle) + "-t^2}$",fontsize=30,weight='bold');
-# #---------------------------------------------------------------------------------
-# #---------------------------------------------------------------------------------
-# # The cubic model
-# # The cubic data: fitted line
-# axs_2[1].plot(epsilon_vec_lin,SS_data_cube_fit_lin, '-', label="Fitted line" ,color=(0/256,68/256,27/256),linewidth=3.0)
-# # The theoretical prediction of the linear model
-# axs_2[1].plot(epsilon_vec_lin,SS_theo_data_cube_fit_lin, 'o', label="Theoretical line" ,color=(0/256,109/256,44/256),linewidth=5.0)
-# # The cubic data: fitted cube
-# axs_2[1].plot(epsilon_vec_cube,SS_data_cube_fit_cube, '-', label="Fitted cube" ,color=(103/256,0/256,31/256),linewidth=3.0)
-# # The theoretical prediction of the cubic model
-# axs_2[1].plot(epsilon_vec_lin,SS_theo_data_cube_fit_cube, 'D', label="Theoretical cube" ,color=(152/256,0/256,67/256),linewidth=5.0)
-# # Add a lovely grid
-# axs_2[1].grid()
-# # Set the limits
-# #axs_2[1].set_xlim([-2, 2])
-# #axs_2[1].set_ylim([0, 0.3])
-# # Legends and axes labels
-# axs_2[1].legend(loc='best',prop={"size":20})
-# axs_2[1].set_ylabel('Fit, $SS(\\epsilon)$',fontsize=25)
-# axs_2[1].set_xlabel('Transformation parameter, $\\epsilon$',fontsize=25)
-# # Change the size of the ticks
-# axs_2[1].tick_params(axis='both', which='major', labelsize=20)
-# axs_2[1].tick_params(axis='both', which='minor', labelsize=20)
-# # Title and saving the figure
-# axs_2[1].set_title("Data generated by the cubic model, $y(t)="+ str(C_cube) + "\\;t^3$",fontsize=30,weight='bold');
-# # Save the figure
-# fig_2.savefig('../Figures/transf_data_line_and_cube.png')
-# # Show the figure
+#---------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------
+# The parabolic model
+# The parabolic data: fitted circle
+axs_2[1].plot(epsilon_vec_circle,SS_data_parabola_fit_circle, 'o', label="Fitted circle" ,color=(0/256,68/256,27/256),linewidth=3.0)
+# The theoretical prediction of the linear model
+axs_2[1].plot(epsilon_vec_circle,SS_theo_data_parabola_fit_circle, '-', label="Theoretical circle" ,color=(0/256,109/256,44/256),linewidth=5.0)
+# The cubic data: fitted cube
+axs_2[1].plot(epsilon_vec_parabola,SS_data_parabola_fit_parabola, 'D', label="Fitted parabola" ,color=(103/256,0/256,31/256),linewidth=3.0)
+# The theoretical prediction of the cubic model
+axs_2[1].plot(epsilon_vec_circle,SS_theo_data_parabola_fit_parabola, '-', label="Theoretical parabola" ,color=(152/256,0/256,67/256),linewidth=5.0)
+# Add a lovely grid
+axs_2[1].grid()
+# Set the limits
+#axs_2[1].set_xlim([-2, 2])
+#axs_2[1].set_ylim([0, 0.3])
+# Legends and axes labels
+axs_2[1].legend(loc='best',prop={"size":20})
+axs_2[1].set_ylabel('Fit, $SS(\\epsilon)$',fontsize=25)
+axs_2[1].set_xlabel('Transformation parameter, $\\epsilon$',fontsize=25)
+# Change the size of the ticks
+axs_2[1].tick_params(axis='both', which='major', labelsize=20)
+axs_2[1].tick_params(axis='both', which='minor', labelsize=20)
+# Title and saving the figure
+axs_2[1].set_title("Data generated by the parablic model, $y(t)=1-t^2$",fontsize=30,weight='bold');
+# Save the figure
+fig_2.savefig('../Figures/transf_data_line_and_cube.png')
+# Show the figure
 plt.show()
 # #=================================================================================
 # #=================================================================================
